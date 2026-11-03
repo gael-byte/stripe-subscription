@@ -15,7 +15,10 @@ function getNextFirstOfMonth() {
 }
 app.post("/create-checkout-session", async (req, res) => {
   try {
+    const utm_source = String(req.query.utm_source || "").slice(0, 100);
+    const utm_content = String(req.query.utm_content || "").slice(0, 100);
     const session = await stripe.checkout.sessions.create({
+      metadata: { utm_source, utm_content },
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [
@@ -26,6 +29,7 @@ app.post("/create-checkout-session", async (req, res) => {
       ],
       subscription_data: {
         billing_cycle_anchor: getNextFirstOfMonth(),
+        metadata: { utm_source, utm_content },
       },
       allow_promotion_codes: true,
       success_url: process.env.SUCCESS_URL,
